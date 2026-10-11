@@ -53,6 +53,10 @@ This uses `csc.exe` from .NET Framework 4.x (`C:\Windows\Microsoft.NET\Framework
 - **Every popup must be dismissable,** and the tray must expose anything a dismissed popup offered.
 - **Lock forms only allow closing** when `AllowClose` is set or Windows is shutting down. Don't add other ways out in release builds.
 
+## Scheduled task (install.ps1)
+
+The every-minute relaunch must come from a **time trigger** starting at install time. A logon trigger's repetition only starts at the next logon, so installing while logged in (the normal case) would leave nothing to relaunch a killed process. The logon trigger is only there to start the app the moment you log in.
+
 ## Changing things
 
 - **Rule changes:** add or adjust a scenario in `tests/Tests.cs`. Tests build local times with `L(day, h, m)` and convert with `U(...)`.

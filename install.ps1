@@ -56,6 +56,9 @@ icacls $dataDir /inheritance:r /grant:r '*S-1-5-32-544:(OI)(CI)F' '*S-1-5-18:(OI
 icacls "$dataDir\*" /reset /T /Q | Out-Null
 
 # Starts at logon, elevated, and re-launches within a minute if the process is killed.
+# The every-minute check is a time trigger starting now: a logon trigger's repetition only begins at the next
+# logon, so on its own it wouldn't relaunch anything until you log out and back in.
+$start = (Get-Date).ToString('s')
 $xml = @"
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
@@ -66,11 +69,15 @@ $xml = @"
     <LogonTrigger>
       <Enabled>true</Enabled>
       <UserId>$user</UserId>
+    </LogonTrigger>
+    <TimeTrigger>
+      <Enabled>true</Enabled>
+      <StartBoundary>$start</StartBoundary>
       <Repetition>
         <Interval>PT1M</Interval>
         <StopAtDurationEnd>false</StopAtDurationEnd>
       </Repetition>
-    </LogonTrigger>
+    </TimeTrigger>
   </Triggers>
   <Principals>
     <Principal id="Author">
