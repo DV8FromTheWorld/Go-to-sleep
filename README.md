@@ -4,6 +4,9 @@ A bedtime lock for Windows, for people who stay up too late and have already bea
 
 At bedtime, every monitor gets covered by a lock screen that stays up until wake time. It's built to be **hard to get around on a whim**. The point isn't to make it impossible; it's to make staying up a deliberate choice instead of a reflex.
 
+<img alt="screenshot" src="https://github.com/user-attachments/assets/999b1f8a-35c1-4f26-b1a2-f35d61464776" />
+
+
 ## How a night goes
 
 1. **Warnings.** Popups (with a sound) 30, 15, 5 and 1 minute before bedtime, then a countdown for the last 60 seconds. Each one can be dismissed with ×.
