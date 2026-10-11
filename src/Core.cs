@@ -293,16 +293,16 @@ namespace GoToSleep
             else if (NowLocal >= Schedule.LockEnd(S.SessionDate, S.WakeTime))
             {
                 if (S.UnlockKind != "") EndUnlock(NowUtc);
-                var next = S.SessionDate.AddDays(1);
-                int carry = DebtMinutesFor(S.BorrowedSeconds);
-                var computed = Schedule.SessionDateFor(NowLocal, Config.WakeTime);
-                if (computed > next)
-                {
-                    // A whole day went by with the PC off; that day already "paid" any debt.
-                    next = computed;
-                    carry = 0;
-                }
-                StartSession(next, carry);
+                var previousEnd = Schedule.LockEnd(S.SessionDate, S.WakeTime);
+                // The day we're in under the (possibly changed) wake time, unless its night would overlap the lock
+                // that just ended. Plain "previous day + 1" skips tonight when the wake time moves later (e.g. a
+                // short test install that ended at 12:10 AM, then a real 7:00 AM wake time).
+                var next = Schedule.SessionDateFor(NowLocal, Config.WakeTime);
+                if (Schedule.Bedtime(next, Config.Bedtime, Config.WakeTime, 0) < previousEnd) next = next.AddDays(1);
+                // Debt carries into the first night after the one it was borrowed in. If a whole night went by
+                // with the PC off, that night already "paid" it.
+                bool firstNightAfter = Schedule.Bedtime(next.AddDays(-1), Config.Bedtime, Config.WakeTime, 0) < previousEnd;
+                StartSession(next, firstNightAfter ? DebtMinutesFor(S.BorrowedSeconds) : 0);
                 changed = true;
             }
 

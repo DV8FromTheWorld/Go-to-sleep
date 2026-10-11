@@ -41,7 +41,7 @@ This uses `csc.exe` from .NET Framework 4.x (`C:\Windows\Microsoft.NET\Framework
   - Tonight's pool is `PoolTotalSeconds = (BorrowMinutes - DebtMinutes) * 60`. `DebtMinutes` is last night's borrowing, which also moves tonight's bedtime earlier by the same amount.
   - `BorrowedSeconds` is tonight's total. It carries into tomorrow as `ceil(seconds / 60)`, rounded once for the whole night, not per stretch.
   - A stretch is capped at wake time. That's fine, because only time actually used is charged.
-- **Day rollover:** if a whole session passed with the PC off, the debt is dropped (that day already "paid" it).
+- **Day rollover:** the new session is the day we're in under the current wake time, moved one day later if its night would overlap the lock that just ended. Don't use "previous day + 1": that skips a night when the wake time moves later. Debt carries only into the first night after it was borrowed; if a whole night went by with the PC off, the debt is dropped.
 - **Extensions survive a restart of the process within the same boot,** detected with `GetTickCount64`. After a reboot they end, and only the time actually used is charged.
 - **Time comes from `MonotonicClock`,** which never goes back by more than 60 s, even across restarts (it uses `LastSeenUtc`). Don't use `DateTime.Now` for rule decisions.
 

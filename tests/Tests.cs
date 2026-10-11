@@ -107,6 +107,24 @@ namespace GoToSleep
             e.Update(U(L(14, 12, 0)));
             Check("debt dropped after a skipped day", e.S.DebtMinutes == 0 && e.BedtimeLocal == L(15, 1, 0));
 
+            Console.WriteLine("Changing times between nights");
+            var m = NewEngine("00:05", "00:10");
+            m.Update(U(L(10, 23, 59)));
+            Check("test lock: 12:05-12:10", m.BedtimeLocal == L(11, 0, 5) && m.LockEndLocal == L(11, 0, 10));
+            Config.TryParseTime("01:00", out m.Config.Bedtime);
+            Config.TryParseTime("07:00", out m.Config.WakeTime);
+            m.Update(U(L(11, 0, 11)));
+            Check("test lock crossing midnight doesn't skip tonight's 1:00", !m.Locked && m.BedtimeLocal == L(11, 1, 0));
+            m.Update(U(L(11, 1, 0)));
+            Check("locked at 1:00 the same night", m.Locked && m.LockEndLocal == L(11, 7, 0));
+
+            var late = NewEngine("01:00", "07:00");
+            late.Update(U(L(10, 20, 0)));
+            late.Update(U(L(11, 6, 0)));
+            Config.TryParseTime("23:30", out late.Config.WakeTime);
+            late.Update(U(L(11, 7, 0)));
+            Check("moving wake time later doesn't re-lock after a night ends", !late.Locked && late.BedtimeLocal == L(12, 1, 0));
+
             Console.WriteLine("Borrow is capped at wake time");
             var w = NewEngine("06:50", "07:00");
             w.Update(U(L(11, 6, 55)));
